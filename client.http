@@ -1,0 +1,6 @@
+@baseUrl = http://localhost:3001
+
+# Pagamento
+
+# @name listar_pagamentos
+GET {{baseUrl}}/payments/{orderId}
