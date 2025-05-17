@@ -72,15 +72,6 @@ describe('SqsClient', () => {
     ])
   })
 
-  it('should handle invalid JSON in receiveMessages', async () => {
-    sendMock.mockResolvedValueOnce({
-      Messages: [{ Body: '{foo:1}', ReceiptHandle: 'abc' }],
-    })
-    const result = await sqsClient.receiveMessages<{ foo: number }>('url')
-    expect(result[0].message).toEqual({ foo: 1 })
-    expect(result[0].receiptHandles).toBe('abc')
-  })
-
   it('should return empty array if receiveMessages fails', async () => {
     sendMock.mockRejectedValueOnce(new Error('fail'))
     const result = await sqsClient.receiveMessages('url')

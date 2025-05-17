@@ -49,17 +49,9 @@ export default class SqsClient {
       const messages = response.Messages ?? []
 
       return messages.map((msg) => {
-        try {
-          return {
-            message: JSON.parse(msg.Body ?? '') as T,
-            receiptHandles: msg.ReceiptHandle as string,
-          }
-        } catch (error) {
-          const fixedMessage = (msg.Body ?? '').replace(/(\w+):/g, '"$1":')
-          return {
-            message: JSON.parse(fixedMessage as string) as T,
-            receiptHandles: msg.ReceiptHandle as string,
-          }
+        return {
+          message: JSON.parse(msg.Body ?? '') as T,
+          receiptHandles: msg.ReceiptHandle as string,
         }
       })
     } catch (error) {

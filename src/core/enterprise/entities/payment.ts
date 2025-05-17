@@ -8,7 +8,7 @@ export class Payment {
   status: PaymentStatus
 
   constructor(
-    private orderId: string,
+    private readonly orderId: string,
     status?: PaymentStatus,
     createdAt?: Date,
     updatedAt?: Date,
