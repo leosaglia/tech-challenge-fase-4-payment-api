@@ -11,7 +11,8 @@ paymentRouter.get(
     try {
       const dataSource: IPaymentDataSource =
         request.app.locals.paymentDataSource
-      const paymentController = new PaymentController(dataSource)
+      const sqsClient = request.app.locals.sqsClient
+      const paymentController = new PaymentController(dataSource, sqsClient)
       const { orderId } = request.params
       const payment = await paymentController.findByOrderId(orderId)
 

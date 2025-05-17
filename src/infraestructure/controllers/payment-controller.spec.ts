@@ -2,12 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { PaymentController } from './payment-controller'
 import { IPaymentDataSource } from '@core/application/interfaces/repository/payment-data-source'
 import { PaymentPresenter } from '@infra/presenters/payment-presenter'
-import { CreatePaymentDto } from '@core/application/dtos/create-payment-dto'
+import SqsClient from '@infra/entrypoint/sqs/config/sqs.config'
+import { RegisterPaymentDto } from '@core/application/dtos/register-payment-use-case-dto'
 
-// Mocks
-// vi.mock('@infra/gateway/payment-gateway', () => ({
-//   PaymentGateway: vi.fn().mockImplementation(() => ({})),
-// }))
 vi.mock('@core/application/useCases/find-payment-use-case', () => ({
   FindByOrderIdUseCase: vi.fn().mockImplementation(() => ({
     execute: vi
@@ -31,11 +28,13 @@ vi.mock('@infra/presenters/payment-presenter', () => ({
 
 describe('PaymentController', () => {
   let paymentDataSource: IPaymentDataSource
+  let sqsClient: SqsClient
   let controller: PaymentController
 
   beforeEach(() => {
     paymentDataSource = {} as IPaymentDataSource
-    controller = new PaymentController(paymentDataSource)
+    sqsClient = { sendMessage: vi.fn() } as unknown as SqsClient
+    controller = new PaymentController(paymentDataSource, sqsClient)
   })
 
   it('should find payment by order id', async () => {
@@ -52,12 +51,8 @@ describe('PaymentController', () => {
   })
 
   it('should register a payment', async () => {
-    const dto: CreatePaymentDto = {
-      id: '2',
+    const dto: RegisterPaymentDto = {
       orderId: 'order-2',
-      status: 'PENDING',
-      createdAt: new Date(),
-      updatedAt: new Date(),
     }
     const result = await controller.registerPayment(dto)
     expect(result).toEqual({
@@ -69,5 +64,9 @@ describe('PaymentController', () => {
       id: '2',
       orderId: 'order-2',
     })
+    expect(sqsClient.sendMessage).toHaveBeenCalledWith(
+      process.env.PROCESSED_PAYMENT_QUEUE_URL ?? '',
+      result,
+    )
   })
 })

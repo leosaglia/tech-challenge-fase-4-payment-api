@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { CreateOrderListener } from './create-order-listener'
-import { CreatePaymentDto } from '@core/application/dtos/create-payment-dto'
 import { IPaymentDataSource } from '@core/application/interfaces/repository/payment-data-source'
+import SqsClient from '../config/sqs.config'
+import { RegisterPaymentDto } from '@core/application/dtos/register-payment-use-case-dto'
 
 vi.mock('../config/sqs.config', () => {
   return {
@@ -31,19 +32,20 @@ type PaymentControllerMock = {
 describe('CreateOrderListener', () => {
   let listener: CreateOrderListener
   let dataSource: IPaymentDataSource
+  let sqsClient: SqsClient
 
   beforeEach(() => {
     dataSource = {} as IPaymentDataSource
-    listener = new CreateOrderListener(dataSource)
+    sqsClient = {
+      receiveMessages: vi.fn(),
+      deleteMessage: vi.fn(),
+    } as unknown as SqsClient
+    listener = new CreateOrderListener(dataSource, sqsClient)
   })
 
   it('should process and delete messages received', async () => {
-    const message: CreatePaymentDto = {
-      id: '1',
+    const message: RegisterPaymentDto = {
       orderId: 'order-1',
-      status: 'PENDING',
-      createdAt: new Date(),
-      updatedAt: new Date(),
     }
     const sqsClient = (listener as unknown as { sqsClient: SqsClientMock })
       .sqsClient
@@ -63,12 +65,8 @@ describe('CreateOrderListener', () => {
   })
 
   it('should handle error in processMessage and not throw', async () => {
-    const message: CreatePaymentDto = {
-      id: '2',
+    const message: RegisterPaymentDto = {
       orderId: 'order-2',
-      status: 'PENDING',
-      createdAt: new Date(),
-      updatedAt: new Date(),
     }
     const sqsClient = (listener as unknown as { sqsClient: SqsClientMock })
       .sqsClient
@@ -89,12 +87,8 @@ describe('CreateOrderListener', () => {
   })
 
   it('should call registerPayment in processMessage', async () => {
-    const message: CreatePaymentDto = {
-      id: '3',
+    const message: RegisterPaymentDto = {
       orderId: 'order-3',
-      status: 'PENDING',
-      createdAt: new Date(),
-      updatedAt: new Date(),
     }
     const paymentController = (
       listener as unknown as { paymentController: PaymentControllerMock }
@@ -102,7 +96,7 @@ describe('CreateOrderListener', () => {
     paymentController.registerPayment.mockResolvedValueOnce(undefined)
     await (
       listener as unknown as {
-        processMessage: (m: CreatePaymentDto) => Promise<void>
+        processMessage: (m: RegisterPaymentDto) => Promise<void>
       }
     ).processMessage.call(listener, message)
     expect(paymentController.registerPayment).toHaveBeenCalledWith(message)

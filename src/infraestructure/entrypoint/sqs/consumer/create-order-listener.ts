@@ -1,17 +1,17 @@
 import SqsClient from '../config/sqs.config'
-import { CreatePaymentDto } from '@core/application/dtos/create-payment-dto'
 import { PaymentController } from '@infra/controllers/payment-controller'
 import { IPaymentDataSource } from '@core/application/interfaces/repository/payment-data-source'
+import { RegisterPaymentDto } from '@core/application/dtos/register-payment-use-case-dto'
 
 export class CreateOrderListener {
   private readonly queueUrl: string
   private readonly sqsClient: SqsClient
   private readonly paymentController: PaymentController
 
-  constructor(dataSource: IPaymentDataSource) {
-    this.queueUrl = process.env.SQS_QUEUE_URL ?? ''
-    this.sqsClient = new SqsClient()
-    this.paymentController = new PaymentController(dataSource)
+  constructor(dataSource: IPaymentDataSource, sqsClient: SqsClient) {
+    this.queueUrl = process.env.CREATE_ORDER_QUEUE_URL ?? ''
+    this.sqsClient = sqsClient
+    this.paymentController = new PaymentController(dataSource, sqsClient)
   }
 
   async listen(): Promise<void> {
@@ -27,7 +27,7 @@ export class CreateOrderListener {
   }
 
   private async receiveMessages(): Promise<void> {
-    const messages = await this.sqsClient.receiveMessages<CreatePaymentDto>(
+    const messages = await this.sqsClient.receiveMessages<RegisterPaymentDto>(
       this.queueUrl,
     )
 
@@ -43,7 +43,7 @@ export class CreateOrderListener {
     }
   }
 
-  private async processMessage(message: CreatePaymentDto): Promise<void> {
+  private async processMessage(message: RegisterPaymentDto): Promise<void> {
     console.log('Processing message:', message)
     await this.paymentController.registerPayment(message)
   }

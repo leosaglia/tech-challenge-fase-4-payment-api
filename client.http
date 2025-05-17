@@ -3,4 +3,4 @@
 # Pagamento
 
 # @name listar_pagamentos
-GET {{baseUrl}}/payments/{orderId}
+GET {{baseUrl}}/payments/123
