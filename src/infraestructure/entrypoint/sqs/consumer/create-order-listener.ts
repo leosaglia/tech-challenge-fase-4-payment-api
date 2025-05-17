@@ -45,6 +45,7 @@ export class CreateOrderListener {
 
   private async processMessage(message: RegisterPaymentDto): Promise<void> {
     console.log('Processing message:', message)
+    message.orderId = message.orderId.toString()
     await this.paymentController.registerPayment(message)
   }
 }
