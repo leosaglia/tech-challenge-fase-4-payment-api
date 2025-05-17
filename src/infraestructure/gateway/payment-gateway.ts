@@ -5,8 +5,10 @@ import { PaymentMapper } from './mappers/payment-mapper'
 
 export class PaymentGateway implements IPaymentGateway {
   constructor(private readonly paymentDataSource: IPaymentDataSource) {}
-  create(payment: Payment): Promise<void> {
-    throw new Error('Method not implemented.')
+  async create(payment: Payment): Promise<void> {
+    await this.paymentDataSource.create(
+      PaymentMapper.toCreatePaymentDto(payment),
+    )
   }
 
   async findByOrderId(orderId: string): Promise<Payment | null> {
