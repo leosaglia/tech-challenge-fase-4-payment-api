@@ -1,7 +1,7 @@
 import { CreatePaymentDto } from '@core/application/dtos/create-payment-dto'
 import { PaymentDto } from '@core/application/dtos/payment-dto'
 import { IPaymentDataSource } from '@core/application/interfaces/repository/payment-data-source'
-import { PrismaService } from '@infra/frameworks/prisma/prisma.service'
+import { PrismaService } from '@infra/database/prisma/prisma.service'
 import { PrismaPaymentMapper } from './mappers/prisma-payment-mapper'
 
 export default class PrismaPaymentRepository implements IPaymentDataSource {
