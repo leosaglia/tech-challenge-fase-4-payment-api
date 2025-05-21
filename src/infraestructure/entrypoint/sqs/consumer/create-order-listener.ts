@@ -9,7 +9,7 @@ export class CreateOrderListener {
   private readonly paymentController: PaymentController
 
   constructor(dataSource: IPaymentDataSource, sqsClient: SqsClient) {
-    this.queueUrl = process.env.CREATE_ORDER_QUEUE_URL ?? ''
+    this.queueUrl = process.env.CREATED_ORDER_QUEUE_URL ?? ''
     this.sqsClient = sqsClient
     this.paymentController = new PaymentController(dataSource, sqsClient)
   }

@@ -6,7 +6,7 @@ import { IPaymentDataSource } from '@core/application/interfaces/repository/paym
 const paymentRouter = Router()
 
 paymentRouter.get(
-  '/:orderId',
+  '/orders/:orderId/payments',
   async (request: Request, response: Response, next: NextFunction) => {
     try {
       const dataSource: IPaymentDataSource =

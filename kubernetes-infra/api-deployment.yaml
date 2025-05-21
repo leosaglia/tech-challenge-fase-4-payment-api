@@ -23,10 +23,35 @@ spec:
             - name: POSTGRES_URL
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: payment-api-secrets
                   key: POSTGRES_URL
             - name: PORT
               value: "3001"
+            - name: PROCESSED_PAYMENT_QUEUE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-api-config
+                  key: PROCESSED_PAYMENT_QUEUE_URL
+            - name: CREATED_ORDER_QUEUE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-api-config
+                  key: CREATED_ORDER_QUEUE_URL
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: payment-api-secrets
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: payment-api-secrets
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: payment-api-secrets
+                  key: AWS_SESSION_TOKEN
           resources:
             requests:
               memory: "256Mi"
